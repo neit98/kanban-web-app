@@ -4,6 +4,7 @@ const cors = require('cors');
 
 const tagRouter = require('./routes/tag');
 const authRouter = require('./routes/auth');
+const taskRouter = require('./routes/task');
 
 const app = express();
 app.use(express.json());
@@ -11,6 +12,7 @@ app.use(cors());
 
 app.use('/api/auth', authRouter);
 app.use('/api/tags', tagRouter);
+app.use('/api/task', taskRouter);
 
 const PORT = process.env.PORT || 5000;
 

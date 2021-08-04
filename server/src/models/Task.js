@@ -30,4 +30,13 @@ const TaskSchema = new Schema(
   { timestamps: true }
 );
 
+// TaskSchema.methods.toJSON = function () {
+//   const task = this;
+//   const taskObject = task.toObject();
+
+//   delete taskObject.user
+
+//   return taskObject
+// }
+
 module.exports = mongoose.model('tasks', TaskSchema);

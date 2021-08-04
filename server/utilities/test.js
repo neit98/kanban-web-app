@@ -12,4 +12,5 @@ const checkValidPassword = (password) => {
   return false;
 };
 
+console.log(password.length);
 console.log(checkValidPassword(invalidPass));
