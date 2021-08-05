@@ -19,8 +19,28 @@ router.get('/', verifyToken, async (req, res) => {
   }
 });
 
+// @route GET api/tasks
+// @desc Get task
+// @access Private
+router.get('/:id', verifyToken, async (req, res) => {
+  try {
+    const task = await Task.findById(req.params.id);
+
+    if (!task) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Task not found' });
+    }
+
+    res.json({ success: true, task });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
 // @route POST api/tasks
-// @desc Create tasks
+// @desc Create task
 // @access Private
 router.post('/', verifyToken, async (req, res) => {
   const { title, description, type } = req.body;
@@ -54,7 +74,7 @@ router.post('/', verifyToken, async (req, res) => {
 });
 
 // @route PATCH api/tasks
-// @desc Update tasks
+// @desc Update task
 // @access Private
 router.patch('/:id', verifyToken, async (req, res) => {
   const { type } = req.body;

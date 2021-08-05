@@ -12,7 +12,7 @@ app.use(cors());
 
 app.use('/api/auth', authRouter);
 app.use('/api/tags', tagRouter);
-app.use('/api/task', taskRouter);
+app.use('/api/tasks', taskRouter);
 
 const PORT = process.env.PORT || 5000;
 
