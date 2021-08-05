@@ -2,16 +2,24 @@ const express = require('express');
 const router = express.Router();
 const appConst = require('../../utilities/constant');
 const Task = require('../models/Task');
+const Tag = require('../models/Tag');
 const { verifyToken } = require('../middleware/auth');
 
 // @route GET api/tasks
 // @desc Get tasks
 // @access Private
 router.get('/', verifyToken, async (req, res) => {
+  const taskCondition = { user: req.userId };
+  req.query.type ? (taskCondition.type = req.query.type) : null;
+
   try {
-    const tasks = await Task.find({ user: req.userId }).populate('user', [
-      'email',
-    ]);
+    const tasks = await Task.find(taskCondition)
+      .populate({ path: 'user', select: 'email' })
+      .populate({
+        path: 'tag',
+        select: 'name',
+      });
+
     res.json({ success: true, tasks });
   } catch (error) {
     console.log(error);
@@ -43,7 +51,7 @@ router.get('/:id', verifyToken, async (req, res) => {
 // @desc Create task
 // @access Private
 router.post('/', verifyToken, async (req, res) => {
-  const { title, description, type } = req.body;
+  const { title, description, type, tag } = req.body;
 
   if (!title) {
     return res
@@ -58,11 +66,22 @@ router.post('/', verifyToken, async (req, res) => {
   }
 
   try {
+    if (tag) {
+      const findTag = await Tag.findOne({ _id: tag });
+
+      if (!findTag) {
+        return res
+          .status(400)
+          .json({ success: false, message: 'Tag not found' });
+      }
+    }
+
     const newTask = new Task({
       title,
       description,
       type: type ?? appConst.TODO,
       user: req.userId,
+      tag: tag || null,
     });
 
     await newTask.save();
@@ -77,7 +96,7 @@ router.post('/', verifyToken, async (req, res) => {
 // @desc Update task
 // @access Private
 router.patch('/:id', verifyToken, async (req, res) => {
-  const { type } = req.body;
+  const { type, tag } = req.body;
   const allowedType = [appConst.TODO, appConst.INPROGRESS, appConst.COMPLETED];
 
   if (type && !allowedType.includes(type)) {
@@ -87,6 +106,15 @@ router.patch('/:id', verifyToken, async (req, res) => {
   }
 
   try {
+    if (tag) {
+      const findTag = await Tag.findOne({ _id: tag });
+      if (!findTag) {
+        return res
+          .status(400)
+          .json({ success: false, message: 'Tag not found' });
+      }
+    }
+
     const updatedTask = await Task.findOneAndUpdate(
       { _id: req.params.id, user: req.userId },
       req.body,

@@ -1,16 +1,9 @@
 const validator = require('validator');
 const _ = require('lodash');
 
-const password = 'Tien29214@';
-const invalidPass = 'abcxyzsdwqewdas';
-const invalidPass2 = '123456abc@';
+const type = '';
 
-const checkValidPassword = (password) => {
-  if (validator.isStrongPassword(password)) {
-    return true;
-  }
-  return false;
-};
+const taskCondition = { id: 'abcxyz' };
+type ? (taskCondition.type = type) : null;
 
-console.log(password.length);
-console.log(checkValidPassword(invalidPass));
+console.log(taskCondition);

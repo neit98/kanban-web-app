@@ -54,7 +54,6 @@ router.post('/', verifyToken, async (req, res) => {
   }
   try {
     const duplicateTag = await Tag.findOne({ name: name.trim() });
-    console.log(duplicateTag);
 
     if (duplicateTag) {
       return res
@@ -67,7 +66,66 @@ router.post('/', verifyToken, async (req, res) => {
     await tag.save();
     res.status(201).json({ success: true, message: tag });
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// @route PUT api/tags
+// @desc Update tag
+// @access Private
+router.post('/:id', verifyToken, async (req, res) => {
+  const { name } = req.body;
+
+  if (!name) {
+    return res
+      .status(400)
+      .json({ success: false, message: 'name is required' });
+  }
+
+  try {
+    const existed = await Tag.findOne({ name: name });
+
+    if (existed) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'name is duplicated' });
+    }
+
+    let updateTag = { name };
+    updatedTag = await Tag.findOneAndUpdate({ _id: req.params.id }, updateTag, {
+      new: true,
+    });
+
+    if (!updateTag) {
+      return res.status(401).json({
+        success: false,
+        message: 'Tag not found or user not authorized',
+      });
+    }
+
+    res.json({ success: true, tag: updateTag });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// @route DELETE api/tags
+// @desc Delete tag
+// @access Private
+router.delete('/:id', verifyToken, async (req, res) => {
+  try {
+    const delTask = await Tag.findOneAndDelete({ _id: req.params.id });
+    // TODO: check tasks involve del tag
+    if (!delTask) {
+      return res.status(404).json({ success: false, message: 'Tag not found' });
+    }
+
+    res.json({ success: true, tag: delTask });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
